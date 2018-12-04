@@ -26,7 +26,7 @@ class sorting{
   {
   }
   
-  // 2b. Another that expresses the property if a sequence is sorted, then it is sorted'.
+  //Another that expresses the property if a sequence is sorted, then it is sorted'.
    lemma sorted1thensorted2(a : seq<int>)
    requires sorted(a);
    ensures sorted'(a);
