@@ -6,10 +6,10 @@ class Token{
   
   method Init(fingerprint : int, clearance : int)
   modifies this;
-  requires fingerprint != 0 && fingerprint != null;
+  requires fingerprint != 0;
   requires 1 <= clearance <= 3;
-  ensures this.fingerprint = fingerprint;
-  ensures this.clearanceLvl = clearance;
+  ensures this.fingerprint == fingerprint;
+  ensures this.clearanceLvl == clearance;
   ensures valid == true;
   {
     this.fingerprint := fingerprint;
@@ -38,21 +38,21 @@ class IdStn{
   ensures open == false;
   ensures alarm == false;
   {
-    securityLvl = init_securityLvl;
+    securityLvl := init_securityLvl;
     open := false;
     alarm := false;
   }
   
   method Open(user : User, fingerprint : int) returns (access : bool)
   modifies user.token`valid,this`open, this`alarm;
-  requires validClearance(user.token.valid);
+  requires user.token.valid;
   requires user != null && user.token != null;
   ensures open == true;
   ensures !user.token.valid ==> alarm == true;
   {
       if(!user.token.valid)
       {
-        user.token.invalidate;
+        user.token.invalidate();
         alarm := true;
       }
       else if(user.token.clearanceLvl >= securityLvl)
@@ -102,7 +102,7 @@ class EnrollmentStn{
 }
 
 class User{
-  var token : Token;
+  var token : Token.init(1,1);
  
  method Init()
   modifies this;
