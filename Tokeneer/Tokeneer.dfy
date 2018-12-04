@@ -103,15 +103,48 @@ class EnrollmentStn{
 
 }
 
-method main(){
+class test{
 
-    /* Init EnrollmentStation */
-    var enrollmentStn := new EnrollmentStn.Init();
+    /*  var enrollmentStn : EnrollmentStn;
+        var clearanceLow : IdStn;
+        var clearanceMedium : IdStn;
+        var clearanceHigh : IdStn;
 
-    /* Init Doors */
-    var clearanceLow := new IdStn.Init(1);
-    var clearanceMedium := new IdStn.Init(2);
-    var clearanceHigh := new IdStn.Init(3);
+        method Init(){
+          /* Init EnrollmentStation */
+          var enrollmentStn := new EnrollmentStn.Init();
+
+          /* Init Doors */
+          var clearanceLow := new IdStn.Init(1);
+          var clearanceMedium := new IdStn.Init(2);
+          var clearanceHigh := new IdStn.Init(3);
+        }
+    */
+
+
+   method test_enrollSuccess_TokenEnrolled(){
+
+     /* Init EnrollmentStation */
+      var enrollmentStn := new EnrollmentStn.Init();
+
+     /*Low Clearance*/
+     var tokenLow := enrollmentStn.Enroll(1,1);
+
+     /*Medium Clearance*/
+     var tokenFail := enrollmentStn.Enroll(1,2); //expecting failure
+     var tokenMedium := enrollmentStn.Enroll(2,2);
+
+     /*High Clearance*/
+     var tokenHigh := enrollmentStn.Enroll(3,3);
+
+     assert tokenLow != null;
+     assert tokenLow.fingerprint == 1;
+     assert tokenLow.clearanceLvl == 1;
+     assert tokenLow.valid;
+
+     assert tokenFail == null;
+
+   }
 
 
 }
