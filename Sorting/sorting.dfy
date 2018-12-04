@@ -14,20 +14,20 @@ class sorting{
   */
   predicate sorted'(s : seq<int>)
   {
-   0 < |s| ==>  (forall i :: 0 < i < |s| ==> s[0] <= s[i]) && sorted2(s[1..])
+    (1 < |s|) ==>  ( s[0] <= s[1]) && sorted'(s[1..])
   }
   
 
 
   // 2a. Write one lemma that expresses the property if a sequence is sorted', then it is sorted.
-  ghost method sorted2thensorted1(a : seq<int>)
+  lemma sorted2thensorted1(a : seq<int>)
   requires sorted'(a);
   ensures sorted(a);
   {
   }
   
   // 2b. Another that expresses the property if a sequence is sorted, then it is sorted'.
-   ghost method sorted1thensorted2(a : seq<int>)
+   lemma sorted1thensorted2(a : seq<int>)
    requires sorted(a);
    ensures sorted'(a);
    {
@@ -52,35 +52,53 @@ class sorting{
    */ 
     predicate p'(a : seq<int>, b : seq<int>)    
     requires |a| == |b|;
-    ensures p();
     {
     	forall i :: count(a,i) == count(b,i)
     }   
     
     function count(a: seq<int>, i : int): nat
  	{
-    if |a| == 0 
+    	if |a| == 0 
       	then 0 
-    else
+    	else
     	(if a[0] == i then 1 else 0) + count(a[1..], i)
   	}
-  	/*
+  	 /*
   	 *4a. Write a full specification for a method that takes an array<int> and sorts it in place. You don't have to write the
   	 * full method, only its specification. Note: we have defined our properties on sequences (which are immutable objects) but the 
   	 * program should be defined on arrays. To convert an array t into a sequence, use the "slice" notation t[..]
-	*/
+	 
 	
 	 method sortArray(a : array<int>)
-  	 modifies a;
- 	 requires a != null && sorted'(a[..]);
- 	 ensures sorted'(a[..]);
+   	 modifies a;
+ 	 requires a.Length > 0;
+ 	 ensures sorted(a[..]);
  	 ensures p(a[..], old(a[..]))
-     {
-     }
+   	 {
+        
+        
+  	 }	
 	
-	/*4b. The specification that you wrote in (4a) should use the predicate p. If it doesn't, your contract is
-	 *under-specified: not all programs that satisfy it are sorting algorithms. In order to illustrate this: take
- 	 *the under-specified contract (the specification in (4a) minus the part that uses the predicate p) and write a simple
-  	 */program that satisfies it. (optionally, write it and verify it in Dafny). 
-  
+	 4b. The specification that you wrote in (4a) should use the predicate p. If it doesn't, your contract is
+	 * under-specified: not all programs that satisfy it are sorting algorithms. In order to illustrate this: take
+ 	 * the under-specified contract (the specification in (4a) minus the part that uses the predicate p) and write a simple
+   	 * program that satisfies it. (optionally, write it and verify it in Dafny). 
+  	 */
+   	
+	 method clear(a : array<int>)
+   modifies a;
+ 	 requires a.Length > 0;
+ 	 ensures sorted(a[..]);
+ 	 //ensures p(a[..], old(a[..]))
+   {
+	 	 var index : int := 0;
+		  while(index < a.Length)
+      invariant 0 <= index <= a.Length
+      invariant forall j :: 0 <= j < index ==> a[j] == 0;
+	   {
+			a[index] := 0;
+			index := index + 1;			
+		  }
+  	}
+   
 }
