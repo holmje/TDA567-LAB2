@@ -1,0 +1,31 @@
+2b. 
+ Lemma: sorted
+ Proof: 
+ s is a sorted(s) sequence in increasing order
+ Base:
+ |s| <= 1 ==> sorted'(s)
+ Step:
+ Assume a sorted' sequence, prove that the sequence is sorted' for s[1,...,n+1]
+ By definition of sorted(s), (i == 0 && j == 1) ==> s[0] <= s[1],
+ because sorted'(s[1..]), s[0] <= s[1] && sorted' which means sorted'(s).
+
+ Lemma: sorted'
+ Proof: Induction
+ Base case: sequence |s| = 0
+ By definition of sorted' if |s| > 1, which is equivalent to |s| < 2. Then s is sorted.
+ Asuming sorted'(s), where s is a sorted' sequence is
+ sorted'(s)
+ <=> s[0] <= s[1] && sorted'(s[1..])
+ <=> s[0] <= s[1] && s[1] <= s[2] && ... && s[|s|-2] <= s[|s|-1]
+ <=> s[0] <= s[1] <= ... <= s[|s|-1]
+ <=> forall i,j :: 0 <= i < j < |s| ==> s[i] <= s[j]
+ <=> sorted(s)
+ 
+ 
+3a. 
+ Multisets are like sets in almost every way, except that they keep track of how many copies of each element they have. 
+ Duplicates are ignored, Like sets, multisets are unordered. 
+ Therefor the statement above us true as long as the sets contain the same integers. The length of the sequence is irrelevant.
+ For instance; {1,2,3,3} == {1,2,3} and {1,2,3,4,5} == {2,3,4,1,5}
+ Therefor the predicate p actually checks if the set contains the same numbers and no others, duplicates are OK
+
