@@ -110,7 +110,7 @@ class test{
 
 
 
-   method test_enrollSuccess_TokenEnrolled() 
+   method test_All() 
 	{
      /* Init EnrollmentStation */
       var enrollmentStn := new EnrollmentStn.Init();
