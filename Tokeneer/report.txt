@@ -1,0 +1,37 @@
+Tokeneer Report
+
+Our system is divided in to the following classes described below. And work as follows:
+The EnrollmentStn creates a Token based on fingerprint and clearance level. The Idstn is a 
+Identification station where the Token is used to grant access or deny access to a door.
+We did not create a user that holds the Token. We just created the system. A User would
+have been a single class just holding the Token.
+
+
+
+class Token:
+This class is the identification Token. A Token is made out of a fingerprint(uniqe), 
+clearance level(1,2,3 - Low, Medium and High),and a validation tag (valid).
+
+class Idstn:
+This class can be considered as the unit thats mounted att the door. It takes the Token
+and the fingerprint as input. The idstn has a securitylvl and alarm. If the Token
+has a to low clearance level a alarm will be alerted and the Token vill be invalidated.
+And the door wont open. But uf the Token has the correct clearance level the door will open.
+The correct the clearance level must be >= securitylvl.
+
+class EnrollmentStn:
+This class keeps track of all the fingerprints that is paired with the Token. It creates
+a Token based on a fingerprint and a clearance level. The fingerprint is being stored in a 
+set<int>. The fingerprint is uniqe and the program makes it impossible to create two
+equivalent Tokens.
+
+class Test:
+This class has one method test_All(). It tests the following:
+- Creation stations.
+- Enrollment of Tokens works
+- Makes sure that the fingerprints are added to the set<int> users
+- Makes sure that a each Token with different access levels
+	can open their door with security level equivalent
+- Test to grant access to a Idstn with both to low clearance level and to high clearance level
+    - When too low clearance level the alarm should go off and the token should become invalid
+    - When the Tokens clearance level is >= security level access should be granted.
