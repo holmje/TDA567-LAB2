@@ -1,0 +1,157 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh14980\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs24 \cf0 class Token\{\
+\
+  var fingerprint : int;\
+  var clearanceLvl : int;\
+  var valid :bool;\
+\
+  constructor(fingerprint : int, clearance : int)\
+  requires 1 <= clearance <= 3;\
+  ensures this.fingerprint == fingerprint;\
+  ensures this.clearanceLvl == clearance;\
+  ensures this.valid == true;\
+  \{\
+    this.fingerprint := fingerprint;\
+    this.clearanceLvl := clearance;\
+    this.valid := true;\
+  \}\
+\
+  method invalidate()\
+  modifies this`valid;\
+  ensures valid == false;\
+  \{\
+    valid := false;\
+  \}\
+\
+\}\
+\
+class User\{\
+  \
+	var token : Token;\
+  \
+	method init()\
+  modifies this;\
+	ensures this.token == null;\
+	\{\
+		this.token := null;\
+	\}\
+  \
+\}\
+\
+class IdStn\{\
+  var open : bool;\
+  var securityLvl : int;\
+  var alarm : bool;\
+\
+  constructor(init_securityLvl : int)\
+  requires 1 <= init_securityLvl <=3;\
+  ensures securityLvl == init_securityLvl;\
+  ensures open == false;\
+  ensures alarm == false;\
+  \{\
+	securityLvl := init_securityLvl;\
+	open := false;\
+ 	alarm := false;\
+  \}\
+\
+  method Open(user : User) returns (access : bool)\
+  modifies user.token`valid,this;\
+  requires user.token.valid;\
+  requires user.token != null;\
+  ensures user.token.valid && user.token.clearanceLvl >= securityLvl ==> open == true;\
+  ensures !user.token.valid ==> alarm == true;\
+  \{\
+      if(!user.token.valid)\
+      \{\
+        	user.token.invalidate();\
+        	alarm := true;\
+      \}\
+      else if(user.token.clearanceLvl >= securityLvl)\
+      \{\
+        	open := true;\
+      \}\
+\
+  \}\
+\
+  method Close()\
+  modifies this`open;\
+  ensures open == false;\
+  \{\
+    	open := false;\
+  \}\
+\}\
+\
+class EnrollmentStn\{\
+  var users : set<User>;\
+  var length : int;\
+\
+  constructor()\
+  ensures users == \{\};\
+  //ensures fresh(users);\
+  \{\
+    	this.users := \{\};\
+    	this.length := 0;\
+  \}\
+\
+  method Enroll(user : User, fingerprint: int, clearanceLvl : int) returns (token : Token?)\
+  modifies this, user`token;\
+  requires clearanceLvl == 1 || clearanceLvl == 2 || clearanceLvl == 3;\
+  requires fingerprint != 0;\
+  ensures user !in users ==> length >= 0;\
+  ensures user !in users ==> length >= old(length);\
+  ensures user !in users ==> fresh(token);\
+  ensures user !in users ==> token.valid == true;\
+  \{\
+      if (!(user in users))\{\
+         user.token := new Token(fingerprint, clearanceLvl);\
+       	 users := users + \{user\};\
+       	 length := length + 1;\
+       	 \
+      \} else \{\
+      	token := null;\
+      \}\
+  \}\
+\
+\}\
+\
+class test\{\
+\
+        var enrollmentStn : EnrollmentStn;\
+        var clearanceLow : IdStn;\
+        var clearanceMedium : IdStn;\
+        var clearanceHigh : IdStn;\
+\
+        constructor()\
+	       \{\
+          /* Init EnrollmentStation */\
+          enrollmentStn := new EnrollmentStn();\
+          /* Init Doors */\
+          clearanceLow := new IdStn(1);\
+          clearanceMedium := new IdStn(2);\
+          clearanceHigh := new IdStn(3);\
+        \}\
+        /* Init users */\
+        method test()\
+        \{\
+        var highUserOne := new User.init();\
+        var highUserTwo := new User.init();\
+        \
+       var lowUserOne := new User.init();\
+         var lowUserTwo := new User.init();\
+        \
+          var mediumUserOne := new User.init();\
+         var mediumUserTwo := new User.init();\
+       \
+        /* Enroll test */\
+      var token := enrollmentStn.Enroll(highUserOne,1,3);\
+      assert enrollmentStn.users == \{highUserOne\};\
+      assert highUserOne.token.clearanceLvl == 3;\
+      assert highUserOne.token.fingerprint == 1;\
+      assert highUserOne.token.valid;\
+     \}\
+\}}
