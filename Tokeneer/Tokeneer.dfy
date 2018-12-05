@@ -18,8 +18,8 @@ class Token{
   }
 
   method invalidate()
-  modifies this`valid;
-  ensures valid == false;
+  modifies `valid;
+  ensures !valid;
   {
     valid := false;
   }
@@ -54,10 +54,12 @@ class IdStn{
       {
         token.invalidate();
         alarm := true;
+		access :=false;
       }
       else if(token.clearanceLvl >= securityLvl)
       {
         open := true;
+		access :=true;
       }
 
   }
@@ -105,44 +107,110 @@ class EnrollmentStn{
 
 class test{
 
-    /*  var enrollmentStn : EnrollmentStn;
-        var clearanceLow : IdStn;
-        var clearanceMedium : IdStn;
-        var clearanceHigh : IdStn;
-
-        method Init(){
-          /* Init EnrollmentStation */
-          var enrollmentStn := new EnrollmentStn.Init();
-
-          /* Init Doors */
-          var clearanceLow := new IdStn.Init(1);
-          var clearanceMedium := new IdStn.Init(2);
-          var clearanceHigh := new IdStn.Init(3);
-        }
-    */
 
 
-   method test_enrollSuccess_TokenEnrolled(){
 
+   method test_All() 
+	{
      /* Init EnrollmentStation */
       var enrollmentStn := new EnrollmentStn.Init();
 
      /*Low Clearance*/
      var tokenLow := enrollmentStn.Enroll(1,1);
-
-     /*Medium Clearance*/
-     var tokenFail := enrollmentStn.Enroll(1,2); //expecting failure
-     var tokenMedium := enrollmentStn.Enroll(2,2);
-
-     /*High Clearance*/
-     var tokenHigh := enrollmentStn.Enroll(3,3);
-
-     assert tokenLow != null;
+	 assert tokenLow != null;
      assert tokenLow.fingerprint == 1;
      assert tokenLow.clearanceLvl == 1;
      assert tokenLow.valid;
+     /*Medium Clearance*/
+	 
+     var tokenMedium := enrollmentStn.Enroll(2,2);
+	 assert tokenMedium != null;
+     assert tokenMedium.fingerprint == 2;
+     assert tokenMedium.clearanceLvl == 2;
+     assert tokenMedium.valid;
+	 
+     /*High Clearance*/
+     var tokenHigh := enrollmentStn.Enroll(3,3);
+     assert tokenHigh != null;
+     assert tokenHigh.fingerprint == 3;
+     assert tokenHigh.clearanceLvl == 3;
+     assert tokenHigh.valid;
 
-     assert tokenFail == null;
+	/* Token Fail */
+	var tokenFailHigh := enrollmentStn.Enroll(5,8);
+	var tokenFailLow := enrollmentStn.Enroll(5,-1);
+	
+	assert tokenFailHigh == null;
+	assert tokenFailLow == null;
+	
+	/* Add Token with existing fingerprint*/
+	var tokenExisting := enrollmentStn.Enroll(1,1);	
+	assert tokenExisting == null;
+	
+	/* See if tokens been added to EnrollmentStn*/
+	assert enrollmentStn.length == 3;
+	assert enrollmentStn.users == {1,2,3};
+	
+	/* Door-tests */
+	
+	var IdStnLow := new IdStn.Init(1);
+	var IdStnMedium := new IdStn.Init(2);
+	var IdStnHigh := new IdStn.Init(3);
+	
+	/********** Test to open Doors *********/
+	
+	/*Low securitylvl door */
+	
+	var accessGranted;
+	accessGranted := false;
+	assert (IdStnLow.open == false);
+	accessGranted := IdStnLow.Open(tokenLow,1);
+	assert accessGranted == true;
+	assert (IdStnLow.open == true);
+	IdStnLow.Close();
+	assert (IdStnLow.open == false);
+	
+	/*Medium securitylvl door */
+	
+	accessGranted := false;
+	assert (IdStnLow.open == false);
+	accessGranted := IdStnMedium.Open(tokenMedium,2);
+	assert accessGranted == true;
+	assert (IdStnMedium.open == true);
+	IdStnMedium.Close();
+	assert (IdStnMedium.open == false);
+	
+	/*High securitylvl door */
+	
+	accessGranted := false;
+	assert (IdStnHigh.open == false);
+	accessGranted := IdStnHigh.Open(tokenHigh,3);
+	assert accessGranted == true;
+	assert (IdStnHigh.open == true);
+	IdStnMedium.Close();
+	assert (IdStnHigh.open == false);
+	
+	/* Test to open door without access */
+	/*Try to open High securitylvl door with too low Access */
+	
+	accessGranted := false;
+	assert (IdStnHigh.open == false);
+	accessGranted := IdStnHigh.Open(tokenLow,1);
+	assert accessGranted == false;
+	assert (IdStnHigh.open == false);
+	assert (IdStnHigh.alarm == true);
+	assert tokenLow.valid == false;
+	IdStnHigh.alarm := false;
+	
+	/* Test to open door with higher access */
+	/*Try to open Low securitylvl door with higher Access than needed */
+	
+	accessGranted := false;
+	assert (IdStnMedium.open == false);
+	accessGranted := IdStnMedium.Open(tokenHigh,3);
+	assert accessGranted == true;
+	assert (IdStnMedium.open == true);
+	assert (IdStnMedium.alarm == false);
 
    }
 
