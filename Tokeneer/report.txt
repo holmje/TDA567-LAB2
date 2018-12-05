@@ -13,11 +13,11 @@ This class is the identification Token. A Token is made out of a fingerprint(uni
 clearance level(1,2,3 - Low, Medium and High),and a validation tag (valid).
 
 class Idstn:
-This class can be considered as the unit thats mounted att the door. It takes the Token
+This class can be considered as the unit that's mounted att the door. It takes the Token
 and the fingerprint as input. The idstn has a securitylvl and alarm. If the Token
 has a to low clearance level a alarm will be alerted and the Token vill be invalidated.
-And the door wont open. But uf the Token has the correct clearance level the door will open.
-The correct the clearance level must be >= securitylvl.
+And the door wont open. But if the Token has the correct clearance level the door will open.
+The correct the clearance level must be higher or equal to the securitylvl.
 
 class EnrollmentStn:
 This class keeps track of all the fingerprints that is paired with the Token. It creates
